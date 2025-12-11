@@ -40,6 +40,7 @@ build:
 	@echo "🔨 Building $(BINARY_NAME) for $(OS)/$(ARCH)..."
 	@mkdir -p $(BUILD_DIR)
 	$(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./$(MAIN_PATH)
+	@codesign --force --sign - $(BUILD_DIR)/$(BINARY_NAME) 2>/dev/null || true
 	@echo "✅ Build complete: $(BUILD_DIR)/$(BINARY_NAME)"
 
 # Build for all Mac architectures
@@ -51,12 +52,14 @@ build-amd64:
 	@echo "🔨 Building for darwin/amd64..."
 	@mkdir -p $(BUILD_DIR)
 	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64 ./$(MAIN_PATH)
+	@codesign --force --sign - $(BUILD_DIR)/$(BINARY_NAME)-darwin-amd64 2>/dev/null || true
 
 .PHONY: build-arm64
 build-arm64:
 	@echo "🔨 Building for darwin/arm64..."
 	@mkdir -p $(BUILD_DIR)
 	GOOS=darwin GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-darwin-arm64 ./$(MAIN_PATH)
+	@codesign --force --sign - $(BUILD_DIR)/$(BINARY_NAME)-darwin-arm64 2>/dev/null || true
 
 # Run the application
 .PHONY: run

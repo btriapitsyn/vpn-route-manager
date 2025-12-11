@@ -70,7 +70,7 @@ vpn-route-manager uninstall
 
 ## How it works
 
-The tool runs as a background service that monitors your VPN connection every 5 seconds. When it detects GlobalProtect VPN is connected, it adds specific network routes that bypass the VPN tunnel for configured services.
+The tool runs as a background service that monitors your VPN connection every 5 seconds. When it detects a VPN connection (works with GlobalProtect, Cisco AnyConnect, FortiClient, OpenVPN, and other corporate VPNs), it adds specific network routes that bypass the VPN tunnel for configured services.
 
 ## Available Services
 

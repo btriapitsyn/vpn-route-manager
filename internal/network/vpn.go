@@ -20,8 +20,8 @@ func (d *VPNDetector) IsVPNConnected() bool {
 		return true
 	}
 
-	// Method 2: Check for GlobalProtect-specific VPN interface
-	if d.hasGlobalProtectInterface() {
+	// Method 2: Check for corporate VPN interface (routes to private networks via utun)
+	if d.hasCorporateVPNInterface() {
 		return true
 	}
 
@@ -59,9 +59,9 @@ func (d *VPNDetector) hasUTunDefaultRoute() bool {
 	return false
 }
 
-// hasGlobalProtectInterface checks for GlobalProtect VPN interface
-func (d *VPNDetector) hasGlobalProtectInterface() bool {
-	// GlobalProtect specific check - look for routes to 10.x.x.x networks through utun
+// hasCorporateVPNInterface checks for corporate VPN interfaces
+// Detects VPNs like GlobalProtect, Cisco AnyConnect, FortiClient, etc.
+func (d *VPNDetector) hasCorporateVPNInterface() bool {
 	cmd := exec.Command("netstat", "-rn")
 	output, err := cmd.Output()
 	if err != nil {
@@ -70,22 +70,20 @@ func (d *VPNDetector) hasGlobalProtectInterface() bool {
 
 	lines := strings.Split(string(output), "\n")
 	for _, line := range lines {
-		// Look for routes to 10.x.x.x networks (common for corporate VPNs)
-		// that go through utun interfaces
-		if strings.Contains(line, "10.") && strings.Contains(line, "utun") {
+		// Look for routes to private networks (10.x.x.x, 172.16-31.x.x)
+		// that go through utun interfaces - common pattern for corporate VPNs
+		if strings.Contains(line, "utun") {
 			fields := strings.Fields(line)
 			if len(fields) >= 4 {
 				dest := fields[0]
 				iface := fields[3]
-				// Check for 10.0.0.0/8 or similar routes through utun
-				if strings.HasPrefix(dest, "10.") && strings.HasPrefix(iface, "utun") {
-					return true
+				// Check for private network routes through utun
+				if strings.HasPrefix(iface, "utun") {
+					if strings.HasPrefix(dest, "10.") || strings.HasPrefix(dest, "172.") {
+						return true
+					}
 				}
 			}
-		}
-		// Also check for specific GlobalProtect routes
-		if strings.Contains(line, "10.101.") && strings.Contains(line, "utun") && strings.Contains(line, "UGSc") {
-			return true
 		}
 	}
 

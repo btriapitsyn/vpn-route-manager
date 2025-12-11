@@ -201,12 +201,10 @@ func (d *GatewayDetector) detectCommonGateways() (string, error) {
 
 // isVPNGateway checks if the gateway looks like a VPN gateway
 func (d *GatewayDetector) isVPNGateway(gateway string) bool {
-	// Common VPN gateway patterns
+	// Common corporate VPN gateway patterns (used by GlobalProtect, Cisco AnyConnect, etc.)
 	vpnPatterns := []string{
-		"10.101.",  // GlobalProtect pattern
-		"10.102.",
-		"10.103.",
-		"172.29.",  // Docker/VM patterns
+		"10.10",   // Common corporate VPN ranges (10.10x.x.x)
+		"172.29.", // Docker/VM/VPN patterns
 		"172.30.",
 		"172.31.",
 	}

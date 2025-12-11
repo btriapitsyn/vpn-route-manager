@@ -47,6 +47,7 @@ sudo mkdir -p /usr/local/bin
 sudo cp "$BINARY_PATH" /usr/local/bin/vpn-route-manager
 sudo chmod 755 /usr/local/bin/vpn-route-manager
 sudo xattr -cr /usr/local/bin/vpn-route-manager
+sudo codesign --force --sign - /usr/local/bin/vpn-route-manager 2>/dev/null || true
 
 # Verify installation
 if ! command -v vpn-route-manager &> /dev/null; then

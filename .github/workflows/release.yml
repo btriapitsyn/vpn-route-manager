@@ -21,6 +21,33 @@ jobs:
         with:
           go-version: '1.21'
 
+      - name: Import Code Signing Certificate
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          if [ -n "$APPLE_CERTIFICATE_BASE64" ]; then
+            # Create temporary keychain
+            KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+            KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+            security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+            # Import certificate
+            CERT_PATH=$RUNNER_TEMP/certificate.p12
+            echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > $CERT_PATH
+            security import $CERT_PATH -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+            security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            security list-keychain -d user -s $KEYCHAIN_PATH
+
+            echo "SIGNING_IDENTITY=Developer ID Application" >> $GITHUB_ENV
+          else
+            echo "No certificate provided, will use ad-hoc signing"
+            echo "SIGNING_IDENTITY=-" >> $GITHUB_ENV
+          fi
+
       - name: Build
         env:
           GOOS: darwin
@@ -28,6 +55,10 @@ jobs:
         run: |
           VERSION=${GITHUB_REF_NAME:-dev}
           go build -ldflags "-X main.version=$VERSION" -o vpn-route-manager-darwin-${{ matrix.arch }} ./cmd/vpn-route-manager
+
+      - name: Sign Binary
+        run: |
+          codesign --force --options runtime --sign "$SIGNING_IDENTITY" vpn-route-manager-darwin-${{ matrix.arch }}
 
       - name: Create package
         run: |
