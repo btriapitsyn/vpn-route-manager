@@ -1,0 +1,26 @@
+# Build artifacts
+build/
+dist/
+vpn-route-manager-package/
+
+# macOS
+.DS_Store
+*.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Local config (user may create custom configs)
+configs/config.json

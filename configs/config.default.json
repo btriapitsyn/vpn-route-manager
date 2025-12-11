@@ -1,0 +1,9 @@
+{
+  "gateway": "auto",
+  "check_interval": 5,
+  "log_dir": "~/.vpn-route-manager/logs",
+  "state_dir": "~/.vpn-route-manager/state",
+  "auto_start": true,
+  "debug": false,
+  "services": {}
+}

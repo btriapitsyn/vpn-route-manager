@@ -1,0 +1,26 @@
+{
+  "telegram": {
+    "name": "Telegram",
+    "description": "Telegram messaging service",
+    "enabled": true,
+    "priority": 100,
+    "networks": [
+      "149.154.160.0/20",
+      "149.154.164.0/22",
+      "149.154.168.0/22",
+      "149.154.172.0/22",
+      "91.108.4.0/22",
+      "91.108.8.0/22",
+      "91.108.12.0/22",
+      "91.108.16.0/22",
+      "91.108.56.0/22",
+      "185.76.151.0/24",
+      "95.161.64.0/20"
+    ],
+    "domains": [
+      "telegram.org",
+      "web.telegram.org",
+      "api.telegram.org"
+    ]
+  }
+}

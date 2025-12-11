@@ -1,0 +1,24 @@
+{
+  "whatsapp": {
+    "name": "WhatsApp",
+    "description": "WhatsApp messaging service",
+    "enabled": false,
+    "priority": 80,
+    "networks": [
+      "31.13.64.0/18",
+      "31.13.24.0/21",
+      "31.13.64.0/19",
+      "31.13.96.0/19",
+      "157.240.0.0/16",
+      "173.252.64.0/18",
+      "179.60.192.0/22",
+      "18.194.0.0/15",
+      "34.224.0.0/12"
+    ],
+    "domains": [
+      "whatsapp.com",
+      "whatsapp.net",
+      "wa.me"
+    ]
+  }
+}
