@@ -1,0 +1,65 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build
+        env:
+          GOOS: darwin
+          GOARCH: ${{ matrix.arch }}
+        run: |
+          VERSION=${GITHUB_REF_NAME:-dev}
+          go build -ldflags "-X main.version=$VERSION" -o vpn-route-manager-darwin-${{ matrix.arch }} ./cmd/vpn-route-manager
+
+      - name: Create package
+        run: |
+          mkdir -p package
+          cp vpn-route-manager-darwin-${{ matrix.arch }} package/vpn-route-manager
+          cp installer.sh package/
+          cp uninstaller.sh package/
+          cp README.md package/
+          chmod +x package/*
+          cd package && zip -r ../vpn-route-manager-darwin-${{ matrix.arch }}.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vpn-route-manager-darwin-${{ matrix.arch }}
+          path: vpn-route-manager-darwin-${{ matrix.arch }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            vpn-route-manager-darwin-amd64/vpn-route-manager-darwin-amd64.zip
+            vpn-route-manager-darwin-arm64/vpn-route-manager-darwin-arm64.zip
+          generate_release_notes: true
